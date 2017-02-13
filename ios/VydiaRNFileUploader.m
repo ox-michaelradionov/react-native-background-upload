@@ -65,7 +65,7 @@ RCT_EXPORT_METHOD(getFileInfo:(NSString *)path resolve:(RCTPromiseResolveBlock)r
         {
             [params setObject:[self guessMIMETypeFromFileName:name] forKey:@"mimeType"];
             NSError* error;
-            NSDictionary<NSFileAttributeKey, id> *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:pathWithoutProtocol error:&error];
+            NSDictionary<NSString *, id> *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:pathWithoutProtocol error:&error];
             if (error == nil)
             {
                 unsigned long long fileSize = [attributes fileSize];
