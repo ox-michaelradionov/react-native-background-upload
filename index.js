@@ -19,6 +19,7 @@ const eventPrefix = 'RNFileUploader-'
 if (NativeModules.VydiaRNFileUploader) {
   NativeModule.addListener(eventPrefix + 'progress')
   NativeModule.addListener(eventPrefix + 'error')
+  NativeModule.addListener(eventPrefix + 'cancelled')
   NativeModule.addListener(eventPrefix + 'completed')
 }
 
@@ -52,6 +53,8 @@ Options object:
   path: string.  path to the file on the device
   headers: hash of name/value header pairs
   method: HTTP method to use.  Default is "POST"
+  notification: hash for customizing tray notifiaction
+    enabled: boolean to enable/disabled notifications, true by default.
 }
 
 Returns a promise with the string ID of the upload.  Will reject if there is a connection problem, the file doesn't exist, or there is some other problem.
@@ -62,11 +65,23 @@ It is recommended to add listeners in the .then of this promise.
 export const startUpload = (options: StartUploadArgs): Promise<string> => NativeModule.startUpload(options)
 
 /*
+Cancels active upload by string ID of the upload.
+
+Upload ID is returned in a promise after a call to startUpload method,
+use it to cancel started upload.
+
+Event "cancelled" will be fired when upload is cancelled.
+
+*/
+export const cancelUpload = (uploadId: string) => NativeModule.cancelUpload(uploadId)
+
+/*
 Listens for the given event on the given upload ID (resolved from startUpload).  
 If you don't supply a value for uploadId, the event will fire for all uploads.
 Events (id is always the upload ID):
   progress - { id: string, progress: int (0-100) }
   error - { id: string, error: string }
+  cancelled - { id: string, error: string }
   completed - { id: string }
 */
 export const addListener = (eventType: UploadEvent, uploadId: string, listener: Function) => {
@@ -77,4 +92,4 @@ export const addListener = (eventType: UploadEvent, uploadId: string, listener: 
   })
 }
 
-export default { startUpload, addListener, getFileInfo }
+export default { startUpload, cancelUpload, addListener, getFileInfo }
