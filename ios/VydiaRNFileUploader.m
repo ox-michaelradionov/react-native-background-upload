@@ -45,7 +45,12 @@ NSURLSession *_urlSession = nil;
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"RNFileUploader-progress", @"RNFileUploader-error", @"RNFileUploader-completed"];
+    return @[
+        @"RNFileUploader-progress",
+        @"RNFileUploader-error",
+        @"RNFileUploader-cancelled",
+        @"RNFileUploader-completed"
+    ];
 }
 
 /*
@@ -132,7 +137,7 @@ RCT_EXPORT_METHOD(startUpload:(NSDictionary *)options resolve:(RCTPromiseResolve
                 [request setValue:val forHTTPHeaderField:key];
             }
         }];
-        NSURLSessionDataTask *uploadTask = [[self urlSession:thisUploadId] uploadTaskWithRequest:request fromFile:[NSURL URLWithString: fileURI]];
+        NSURLSessionDataTask *uploadTask = [[self urlSession] uploadTaskWithRequest:request fromFile:[NSURL URLWithString: fileURI]];
         uploadTask.taskDescription = customUploadId ? customUploadId : [NSString stringWithFormat:@"%i", thisUploadId];
         [uploadTask resume];
         resolve(uploadTask.taskDescription);
@@ -142,7 +147,24 @@ RCT_EXPORT_METHOD(startUpload:(NSDictionary *)options resolve:(RCTPromiseResolve
     }
 }
 
-- (NSURLSession *)urlSession: (int) thisUploadId{
+/*
+ * Cancels file upload
+ * Accepts upload ID as a first argument, this upload will be cancelled
+ * Event "cancelled" will be fired when upload is cancelled.
+ */
+RCT_EXPORT_METHOD(cancelUpload: (NSString *)cancelUploadId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+    NSURLSession *session = [self urlSession];
+    [session getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
+        for (NSURLSessionTask *uploadTask in uploadTasks) {
+            if (uploadTask.taskDescription == cancelUploadId) {
+                [uploadTask cancel];
+            }
+        }
+    }];
+    resolve([NSNumber numberWithBool:YES]);
+}
+
+- (NSURLSession *)urlSession{
     
     if(_urlSession == nil) {
         NSURLSessionConfiguration *sessionConfigurationt = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:BACKGROUND_SESSION_ID];
@@ -151,7 +173,6 @@ RCT_EXPORT_METHOD(startUpload:(NSDictionary *)options resolve:(RCTPromiseResolve
     
     return _urlSession;
 }
-
 
 #pragma NSURLSessionTaskDelegate
 
@@ -173,7 +194,11 @@ didCompleteWithError:(NSError *)error {
     else
     {
         [data setObject:error.localizedDescription forKey:@"error"];
-        [self _sendEventWithName:@"RNFileUploader-error" body:data];
+        if (error.code == NSURLErrorCancelled) {
+            [self _sendEventWithName:@"RNFileUploader-cancelled" body:data];
+        } else {
+            [self _sendEventWithName:@"RNFileUploader-error" body:data];
+        }
     }
 }
 
