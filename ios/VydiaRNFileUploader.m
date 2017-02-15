@@ -147,7 +147,7 @@ RCT_EXPORT_METHOD(startUpload:(NSDictionary *)options resolve:(RCTPromiseResolve
  * Accepts upload ID as a first argument, this upload will be cancelled
  * Event "cancelled" will be fired when upload is cancelled.
  */
-RCT_EXPORT_METHOD(cancelUpload: (NSString *)cancelUploadId) {
+RCT_EXPORT_METHOD(cancelUpload: (NSString *)cancelUploadId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     NSURLSession *session = [self urlSession];
     [session getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
         for (NSURLSessionTask *uploadTask in uploadTasks) {
@@ -156,6 +156,7 @@ RCT_EXPORT_METHOD(cancelUpload: (NSString *)cancelUploadId) {
             }
         }
     }];
+    resolve([NSNumber numberWithBool:YES]);
 }
 
 - (NSURLSession *)urlSession{
