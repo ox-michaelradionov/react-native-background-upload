@@ -34,8 +34,8 @@ The only React Native http post file uploader with android and iOS background su
 3. Add the import and link the package in `MainApplication.java`:
 
     ```java
-    package com.vydia // <-- add this import
-    
+    import com.vydia.UploaderReactPackage; // <-- add this import
+
     public class MainApplication extends Application implements ReactApplication {
         @Override
         protected List<ReactPackage> getPackages() {
@@ -58,6 +58,10 @@ const options {
   method: 'POST',
   headers: {
     'my-custom-header': 's3headervalueorwhateveryouneed'
+  },
+  // Below are options only supported on Android
+  notification: {
+    enabled: true
   }
 }
 

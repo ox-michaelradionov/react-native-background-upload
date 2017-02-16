@@ -6,10 +6,15 @@ import { NativeModules, DeviceEventEmitter } from 'react-native'
 
 export type UploadEvent = 'progress' | 'error' | 'completed' | 'cancelled'
 
+export type NotificationArgs = {
+  enabled: boolean
+}
+
 export type StartUploadArgs = {
   url: string,
   path: string,
-  headers?: Object
+  headers?: Object,
+  notification?: NotificationArgs
 }
 
 const NativeModule = NativeModules.VydiaRNFileUploader || NativeModules.RNFileUploader // iOS is VydiaRNFileUploader and Android is NativeModules 
