@@ -1,3 +1,5 @@
+def libraryVersion = "3.0.3"
+
 buildscript {
     repositories {
         jcenter()
@@ -10,8 +12,8 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 25
+    buildToolsVersion "24.0.3"
 
     defaultConfig {
         minSdkVersion 16
@@ -21,7 +23,7 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
-    }    
+    }
     lintOptions {
         abortOnError false
     }
@@ -31,6 +33,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'net.gotev:uploadservice:3.0.3'
     compile 'com.facebook.react:react-native:+'
+    compile "net.gotev:uploadservice:${libraryVersion}"
+    compile "net.gotev:uploadservice-okhttp:${libraryVersion}"
 }
